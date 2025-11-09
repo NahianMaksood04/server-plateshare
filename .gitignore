@@ -1,0 +1,70 @@
+# =====================================================
+# Global .gitignore for PlateShare (MERN + Firebase)
+# =====================================================
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# --- Environment Files ---
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# --- Build Output ---
+dist/
+build/
+.cache/
+.next/
+out/
+coverage/
+
+# --- React (client) ---
+client/node_modules/
+client/build/
+client/.env
+client/.DS_Store
+
+# --- Express Server (backend) ---
+server/node_modules/
+server/.env
+server/.DS_Store
+server/logs/
+server/temp/
+
+# --- OS & Editor Files ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.log
+*.bak
+*.tmp
+
+# --- Firebase & Netlify ---
+.firebase/
+.firebaserc
+.netlify/
+functions/lib/
+functions/node_modules/
+
+# --- Misc ---
+*.tgz
+*.zip
+*.tar
+*.gz
+
+# --- Optional: VSCode or IDE folders ---
+.vscode/
+.history/
+
+# --- Optional: Test coverage ---
+coverage/
