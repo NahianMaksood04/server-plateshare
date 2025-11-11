@@ -1,0 +1,17 @@
+const express = require("express");
+const {
+  createRequest,
+  getRequestsForFood,
+  updateRequestStatus,
+  getMyRequests,
+} = require("../controllers/requestController");
+const verifyFirebaseToken = require("../middleware/verifyFirebaseToken");
+
+const router = express.Router();
+
+router.post("/", verifyFirebaseToken, createRequest);
+router.get("/mine", verifyFirebaseToken, getMyRequests);
+router.get("/food/:foodId", verifyFirebaseToken, getRequestsForFood);
+router.patch("/:id/status", verifyFirebaseToken, updateRequestStatus);
+
+module.exports = router;
