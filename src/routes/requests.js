@@ -9,8 +9,9 @@ const verifyFirebaseToken = require("../middleware/verifyFirebaseToken");
 
 const router = express.Router();
 
+// Protected routes
 router.post("/", verifyFirebaseToken, createRequest);
-router.get("/mine", verifyFirebaseToken, getMyRequests);
+router.get("/my", verifyFirebaseToken, getMyRequests);
 router.get("/food/:foodId", verifyFirebaseToken, getRequestsForFood);
 router.patch("/:id/status", verifyFirebaseToken, updateRequestStatus);
 

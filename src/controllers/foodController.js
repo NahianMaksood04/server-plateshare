@@ -1,21 +1,19 @@
 const Food = require("../models/Food");
 const { FOOD_STATUS } = require("../utils/constants");
 
-// 🥗 Get 6 featured available foods (sorted by quantity & newest first)
-exports.getFeaturedFoods = async (req, res, next) => {
+exports.getFeaturedFoods = async (req, res) => {
   try {
     const foods = await Food.find({ food_status: FOOD_STATUS.AVAILABLE })
-      .sort({ foodQuantity: -1, createdAt: -1 }) // fixed -0 → -1
+      .sort({ foodQuantity: -1, createdAt: -1 })
       .limit(6);
-
     res.json(foods);
   } catch (err) {
-    next(err);
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// 📦 Get paginated food list by status
-exports.getFoods = async (req, res, next) => {
+exports.getFoods = async (req, res) => {
   try {
     const status = req.query.status || FOOD_STATUS.AVAILABLE;
     const page = parseInt(req.query.page || "1", 10);
@@ -30,55 +28,36 @@ exports.getFoods = async (req, res, next) => {
 
     res.json({ items, total, page, limit });
   } catch (err) {
-    next(err);
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// 🔍 Get single food item by ID
-exports.getFoodById = async (req, res, next) => {
+exports.getFoodById = async (req, res) => {
   try {
     const food = await Food.findById(req.params.id);
     if (!food) return res.status(404).json({ message: "Food not found" });
     res.json(food);
   } catch (err) {
-    next(err);
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// ➕ Create a new food donation
-exports.createFood = async (req, res, next) => {
+exports.createFood = async (req, res) => {
   try {
-    const {
-      foodName,
-      foodImage,
-      foodQuantity,
-      pickupLocation,
-      expireDate,
-      notes,
-    } = req.body;
+    const { foodName, foodImage, foodQuantity, pickupLocation, expireDate, notes } = req.body;
 
-    // Validate required fields
-    if (
-      !foodName ||
-      !foodImage ||
-      !foodQuantity ||
-      !pickupLocation ||
-      !expireDate
-    ) {
+    if (!foodName || !foodImage || !foodQuantity || !pickupLocation || !expireDate) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Get donor info (from Firebase token or request body)
-    const donorName =
-      req.user.name || req.user.user_name || req.body.donorName || "Anonymous";
+    const donorName = req.user.name || req.body.donorName || "Anonymous";
     const donorEmail = req.user.email || req.body.donorEmail;
     const donorPhoto = req.user.picture || req.body.donorPhoto || "";
 
-    if (!donorEmail) {
-      return res.status(400).json({ message: "Donor email missing" });
-    }
+    if (!donorEmail) return res.status(400).json({ message: "Donor email missing" });
 
-    // Create new food document
     const food = await Food.create({
       foodName,
       foodImage,
@@ -94,74 +73,55 @@ exports.createFood = async (req, res, next) => {
 
     res.status(201).json(food);
   } catch (err) {
-    next(err);
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// 👤 Get all foods created by the logged-in donor
-exports.getMyFoods = async (req, res, next) => {
+exports.getMyFoods = async (req, res) => {
   try {
-    const email = req.user.email;
-    const foods = await Food.find({ donorEmail: email }).sort({
-      createdAt: -1,
-    });
+    const foods = await Food.find({ donorEmail: req.user.email }).sort({ createdAt: -1 });
     res.json(foods);
   } catch (err) {
-    next(err);
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// ✏️ Update an existing food (only by its owner)
-exports.updateFood = async (req, res, next) => {
+exports.updateFood = async (req, res) => {
   try {
     const id = req.params.id;
     const email = req.user.email;
 
     const food = await Food.findById(id);
     if (!food) return res.status(404).json({ message: "Food not found" });
-    if (food.donorEmail !== email)
-      return res
-        .status(403)
-        .json({ message: "Forbidden: You cannot edit this food" });
+    if (food.donorEmail !== email) return res.status(403).json({ message: "Forbidden" });
 
-    const allowed = [
-      "foodName",
-      "foodImage",
-      "foodQuantity",
-      "pickupLocation",
-      "expireDate",
-      "notes",
-      "food_status",
-    ];
-
+    const allowed = ["foodName", "foodImage", "foodQuantity", "pickupLocation", "expireDate", "notes", "food_status"];
     const updates = {};
-    for (const key of allowed) {
-      if (req.body[key] !== undefined) updates[key] = req.body[key];
-    }
+    for (const key of allowed) if (req.body[key] !== undefined) updates[key] = req.body[key];
 
     const updated = await Food.findByIdAndUpdate(id, updates, { new: true });
     res.json(updated);
   } catch (err) {
-    next(err);
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// 🗑️ Delete a food (only by its owner)
-exports.deleteFood = async (req, res, next) => {
+exports.deleteFood = async (req, res) => {
   try {
     const id = req.params.id;
     const email = req.user.email;
 
     const food = await Food.findById(id);
     if (!food) return res.status(404).json({ message: "Food not found" });
-    if (food.donorEmail !== email)
-      return res
-        .status(403)
-        .json({ message: "Forbidden: You cannot delete this food" });
+    if (food.donorEmail !== email) return res.status(403).json({ message: "Forbidden" });
 
     await Food.findByIdAndDelete(id);
     res.json({ success: true });
   } catch (err) {
-    next(err);
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };

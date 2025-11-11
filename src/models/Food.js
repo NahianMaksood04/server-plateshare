@@ -20,7 +20,7 @@ const FoodSchema = new mongoose.Schema(
       default: FOOD_STATUS.AVAILABLE,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Food", FoodSchema);

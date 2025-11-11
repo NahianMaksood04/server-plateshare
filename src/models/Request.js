@@ -3,12 +3,7 @@ const { REQUEST_STATUS } = require("../utils/constants");
 
 const RequestSchema = new mongoose.Schema(
   {
-    food: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Food",
-      required: true,
-      index: true,
-    },
+    food: { type: mongoose.Schema.Types.ObjectId, ref: "Food", required: true, index: true },
 
     userName: { type: String, required: true },
     userEmail: { type: String, required: true, index: true },
@@ -24,7 +19,7 @@ const RequestSchema = new mongoose.Schema(
       default: REQUEST_STATUS.PENDING,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Request", RequestSchema);
