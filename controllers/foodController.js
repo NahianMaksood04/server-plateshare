@@ -1,59 +1,136 @@
-import Food from "../models/Food.js";
+// backend/controllers/foodController.js
+const Food = require('../models/Food');
+const Request = require('../models/Request');
 
-export const addFood = async (req, res) => {
+exports.createFood = async (req, res) => {
   try {
+    // req.user should be set by authMiddleware
+    const {
+      food_name,
+      food_image,
+      food_quantity,
+      pickup_location,
+      expire_date,
+      additional_notes
+    } = req.body;
+
+    if (!food_name || !food_image || !food_quantity || !pickup_location || !expire_date) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
     const newFood = new Food({
-      ...req.body,
-      donator: {
-        name: req.user.name,
-        email: req.user.email,
-        photoURL: req.user.picture,
-      },
+      food_name,
+      food_image,
+      food_quantity,
+      pickup_location,
+      expire_date,
+      additional_notes,
+      donator_name: req.user.name || 'Anonymous',
+      donator_email: req.user.email,
+      donator_image: req.user.picture || ''
     });
-    await newFood.save();
-    res.status(201).json({ message: "Food added successfully" });
+
+    const saved = await newFood.save();
+    return res.status(201).json(saved);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('createFood error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-export const getAvailableFoods = async (req, res) => {
+exports.getAllAvailableFoods = async (req, res) => {
   try {
-    const foods = await Food.find({ food_status: "Available" }).sort({
-      quantity: -1,
+    const foods = await Food.find({ food_status: 'Available' }).sort({ created_at: -1 });
+    return res.json(foods);
+  } catch (error) {
+    console.error('getAllAvailableFoods error:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getFoodById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const food = await Food.findById(id);
+    if (!food) return res.status(404).json({ message: 'Food not found' });
+    return res.json(food);
+  } catch (error) {
+    console.error('getFoodById error:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getFeaturedFoods = async (req, res) => {
+  try {
+    // Logic: top 6 by some measure — spec says 'highest food quantity'.
+    // Since food_quantity is a text like "Serves 5 people", attempt to extract a number.
+    const foods = await Food.find({ food_status: 'Available' });
+
+    const parsed = foods.map(f => {
+      // try to extract digits from food_quantity
+      const match = (f.food_quantity || '').match(/(\d+)/);
+      const qty = match ? parseInt(match[1], 10) : 0;
+      return { f, qty };
     });
-    res.status(200).json(foods);
+
+    parsed.sort((a, b) => b.qty - a.qty);
+
+    const top6 = parsed.slice(0, 6).map(p => p.f);
+    return res.json(top6);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('getFeaturedFoods error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-export const getFoodById = async (req, res) => {
+exports.updateFood = async (req, res) => {
   try {
-    const food = await Food.findById(req.params.id);
-    if (!food) return res.status(404).json({ message: "Food not found" });
-    res.status(200).json(food);
+    const { id } = req.params;
+    const updates = req.body;
+
+    const food = await Food.findById(id);
+    if (!food) return res.status(404).json({ message: 'Food not found' });
+
+    // Only owner can update
+    if (food.donator_email !== req.user.email) {
+      return res.status(403).json({ message: 'Forbidden: not the owner' });
+    }
+
+    Object.assign(food, updates);
+    const updated = await food.save();
+    return res.json(updated);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('updateFood error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-export const updateFood = async (req, res) => {
+exports.deleteFood = async (req, res) => {
   try {
-    const updatedFood = await Food.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    res.status(200).json(updatedFood);
+    const { id } = req.params;
+    const food = await Food.findById(id);
+    if (!food) return res.status(404).json({ message: 'Food not found' });
+
+    if (food.donator_email !== req.user.email) {
+      return res.status(403).json({ message: 'Forbidden: not the owner' });
+    }
+
+    await Request.deleteMany({ food: food._id }); // optional: clean requests
+    await Food.findByIdAndDelete(id);
+    return res.json({ message: 'Food deleted' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('deleteFood error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-export const deleteFood = async (req, res) => {
+exports.getFoodsByDonator = async (req, res) => {
   try {
-    await Food.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Food deleted successfully" });
+    const donatorEmail = req.user.email;
+    const foods = await Food.find({ donator_email: donatorEmail }).sort({ created_at: -1 });
+    return res.json(foods);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('getFoodsByDonator error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };

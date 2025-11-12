@@ -1,19 +1,18 @@
-import express from "express";
-import {
-  addFood,
-  getAvailableFoods,
-  getFoodById,
-  updateFood,
-  deleteFood,
-} from "../controllers/foodController.js";
-import { verifyToken } from "../middleware/authMiddleware.js";
-
+// backend/routes/foodRoutes.js
+const express = require('express');
 const router = express.Router();
+const foodController = require('../controllers/foodController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-router.post("/", verifyToken, addFood);
-router.get("/", getAvailableFoods);
-router.get("/:id", verifyToken, getFoodById);
-router.patch("/:id", verifyToken, updateFood);
-router.delete("/:id", verifyToken, deleteFood);
+// Public
+router.get('/', foodController.getAllAvailableFoods);
+router.get('/featured', foodController.getFeaturedFoods);
+router.get('/:id', authMiddleware, foodController.getFoodById); // details require private route per spec
 
-export default router;
+// Private routes (require auth)
+router.post('/', authMiddleware, foodController.createFood);
+router.get('/my/foods', authMiddleware, foodController.getFoodsByDonator);
+router.patch('/:id', authMiddleware, foodController.updateFood);
+router.delete('/:id', authMiddleware, foodController.deleteFood);
+
+module.exports = router;
