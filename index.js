@@ -33,5 +33,6 @@ app.get('/', (req, res) => {
   res.send('PlateShare Server is running!');
 });
 
-// Export the app for Vercel
-module.exports = app;
+app.listen(port, () => {
+  console.log(`Server is running on port: ${port}`);
+});
