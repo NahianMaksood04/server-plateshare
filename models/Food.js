@@ -1,26 +1,20 @@
-// backend/models/Food.js
 const mongoose = require('mongoose');
 
-const FoodSchema = new mongoose.Schema({
-  food_name: { type: String, required: true },
-  food_image: { type: String, required: true }, // URL from imgbb (frontend uploads)
-  food_quantity: { type: String, required: true }, // e.g., "Serves 5 people"
-  pickup_location: { type: String, required: true },
-  expire_date: { type: Date, required: true },
-  additional_notes: { type: String },
-
-  // Donator info (auto-filled from Firebase user)
-  donator_name: { type: String, required: true },
-  donator_email: { type: String, required: true },
-  donator_image: { type: String },
-
-  food_status: {
-    type: String,
-    enum: ['Available', 'Requested', 'Donated', 'Expired'],
-    default: 'Available'
+const foodSchema = new mongoose.Schema({
+  foodName: { type: String, required: true },
+  foodImage: { type: String, required: true },
+  foodQuantity: { type: Number, required: true },
+  pickupLocation: { type: String, required: true },
+  expiredDateTime: { type: Date, required: true },
+  additionalNotes: { type: String },
+  foodStatus: { type: String, enum: ['Available', 'Donated'], default: 'Available' },
+  donator: {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    image: { type: String },
   },
+}, { timestamps: true });
 
-  created_at: { type: Date, default: Date.now }
-});
+const Food = mongoose.model('Food', foodSchema);
 
-module.exports = mongoose.model('Food', FoodSchema);
+module.exports = Food;

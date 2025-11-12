@@ -1,103 +1,109 @@
-// backend/controllers/requestController.js
 const Request = require('../models/Request');
 const Food = require('../models/Food');
 
+// Create a new food request
 exports.createRequest = async (req, res) => {
   try {
-    const { foodId } = req.params;
-    const { location, reason, contact_no } = req.body;
+    const { foodId, requestLocation, requestReason, contactNo } = req.body;
+    const requesterEmail = req.user.email;
 
-    if (!location || !reason || !contact_no) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    const food = await Food.findById(foodId);
-    if (!food) return res.status(404).json({ message: 'Food not found' });
-
-    // Create request with requester info from req.user
-    const request = new Request({
-      food: food._id,
-      requester_name: req.user.name || 'Anonymous',
-      requester_email: req.user.email,
-      requester_image: req.user.picture || '',
-      location,
-      reason,
-      contact_no
+    const newRequest = new Request({
+      foodId,
+      requesterEmail,
+      requesterName: req.user.name,
+      requesterPhoto: req.user.picture,
+      requestLocation,
+      requestReason,
+      contactNo,
+      status: 'pending',
     });
 
-    await request.save();
-
-    // Optionally set food_status to 'Requested' (still available until owner accepts)
-    if (food.food_status === 'Available') {
-      food.food_status = 'Requested';
-      await food.save();
-    }
-
-    return res.status(201).json(request);
+    const savedRequest = await newRequest.save();
+    res.status(201).json(savedRequest);
   } catch (error) {
-    console.error('createRequest error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
 
+// Get all requests for a specific food (for the food owner)
 exports.getRequestsForFood = async (req, res) => {
   try {
     const { foodId } = req.params;
     const food = await Food.findById(foodId);
-    if (!food) return res.status(404).json({ message: 'Food not found' });
 
-    // Only owner can see requests for their food
-    if (food.donator_email !== req.user.email) {
-      return res.status(403).json({ message: 'Forbidden: not the owner' });
+    if (!food) {
+      return res.status(404).json({ message: 'Food not found' });
     }
 
-    const requests = await Request.find({ food: foodId }).sort({ created_at: -1 });
-    return res.json(requests);
+    // Only the food owner can see the requests
+    if (food.donator.email !== req.user.email) {
+      return res.status(403).json({ message: 'You are not authorized to view these requests.' });
+    }
+
+    const requests = await Request.find({ foodId }).sort({ createdAt: -1 });
+    res.json(requests);
   } catch (error) {
-    console.error('getRequestsForFood error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
 
-exports.updateRequestStatus = async (req, res) => {
+// Get all requests made by the logged-in user
+exports.getRequestsByUser = async (req, res) => {
+    try {
+        const requests = await Request.find({ requesterEmail: req.user.email }).populate('foodId').sort({ createdAt: -1 });
+        res.json(requests);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+
+// Accept a food request
+exports.acceptRequest = async (req, res) => {
   try {
-    const { id } = req.params; // request id
-    const { action } = req.body; // 'accept' or 'reject'
+    const request = await Request.findById(req.params.id).populate('foodId');
 
-    const request = await Request.findById(id).populate('food');
-    if (!request) return res.status(404).json({ message: 'Request not found' });
-
-    const food = request.food;
-    if (!food) return res.status(404).json({ message: 'Associated food not found' });
-
-    // Only food owner can accept/reject
-    if (food.donator_email !== req.user.email) {
-      return res.status(403).json({ message: 'Forbidden: not the owner' });
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
     }
 
-    if (action === 'accept') {
-      request.status = 'accepted';
-      food.food_status = 'Donated'; // per spec
-      await request.save();
-      await food.save();
-      return res.json({ message: 'Request accepted' });
-    } else if (action === 'reject') {
-      request.status = 'rejected';
-      await request.save();
-
-      // If there are no other pending/accepted requests, set status back to Available
-      const otherPending = await Request.findOne({ food: food._id, status: 'pending' });
-      if (!otherPending) {
-        food.food_status = 'Available';
-        await food.save();
-      }
-
-      return res.json({ message: 'Request rejected' });
-    } else {
-      return res.status(400).json({ message: 'Invalid action' });
+    // Check if the user is the donator of the food
+    if (request.foodId.donator.email !== req.user.email) {
+      return res.status(403).json({ message: 'User not authorized' });
     }
+
+    // Update request status
+    request.status = 'accepted';
+    await request.save();
+
+    // Update food status
+    await Food.findByIdAndUpdate(request.foodId._id, { foodStatus: 'Donated' });
+
+    res.json({ message: 'Request accepted and food status updated to Donated.' });
   } catch (error) {
-    console.error('updateRequestStatus error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+// Reject a food request
+exports.rejectRequest = async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.id).populate('foodId');
+
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    // Check if the user is the donator of the food
+    if (request.foodId.donator.email !== req.user.email) {
+      return res.status(403).json({ message: 'User not authorized' });
+    }
+
+    request.status = 'rejected';
+    await request.save();
+
+    res.json({ message: 'Request rejected.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
   }
 };

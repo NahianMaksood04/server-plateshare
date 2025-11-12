@@ -1,70 +1,121 @@
-# =====================================================
-# Global .gitignore for PlateShare (MERN + Firebase)
-# =====================================================
+# ============================================
+# 🌐 PlateShare MERN Project - .gitignore
+# Covers: Client (React/Vite) + Server (Node/Express)
+# ============================================
 
-# --- Node ---
+# --- Node dependencies ---
 node_modules/
+**/node_modules/
+
+# --- Environment variables ---
+.env
+.env.*
+!.env.example
+
+# --- Build outputs ---
+dist/
+build/
+coverage/
+.cache/
+.vite/
+.next/
+out/
+tmp/
+temp/
+
+# Node modules
+node_modules/
+
+# Environment / secrets
+.env
+serviceAccountKey.json
+
+# Build / temp files
+dist/
+build/
+uploads/
+
+
+# --- Logs ---
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-package-lock.json
+lerna-debug.log*
 
-# --- Environment Files ---
-.env
-.env.local
-.env.development
-.env.production
-.env.test
-
-# --- Build Output ---
-dist/
-build/
-.cache/
-.next/
-out/
-coverage/
-
-# --- React (client) ---
-client/node_modules/
-client/build/
-client/.env
-client/.DS_Store
-
-# --- Express Server (backend) ---
-server/node_modules/
-server/.env
-server/.DS_Store
-server/logs/
-server/temp/
-
-# --- OS & Editor Files ---
+# --- OS generated files ---
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# --- IDE / Editor files ---
+.vscode/
+.idea/
 *.swp
 *.swo
-.idea/
-.vscode/
-*.log
 *.bak
 *.tmp
+*.orig
+*.save
+*.sass-cache/
+.history/
+*.iml
 
-# --- Firebase & Netlify ---
-.firebase/
-.firebaserc
-.netlify/
-functions/lib/
-functions/node_modules/
+# --- Lock files (optional if using one package manager globally) ---
+# Uncomment the one you use
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
 
-# --- Misc ---
+# --- TypeScript ---
+*.tsbuildinfo
+
+# --- Misc cache ---
+.npm/
+.yarn/
+.pnp.*
+.cache-loader/
+eslintcache
+babel-cache/
+stylelintcache/
+
+# --- Tests ---
+coverage/
+jest-html-reporters-*.html
+test-results/
+cypress/videos/
+cypress/screenshots/
+
+# --- Build artifacts ---
 *.tgz
 *.zip
-*.tar
-*.gz
+*.tar.gz
 
-# --- Optional: VSCode or IDE folders ---
-.vscode/
-.history/
+# --- Local database or uploads ---
+uploads/
+data/
+backup/
+db.sqlite
+*.db
 
-# --- Optional: Test coverage ---
-coverage/
+# --- Server specific ---
+/server/logs/
+server/uploads/
+server/temp/
+server/.env
+
+# --- Client specific ---
+/client/dist/
+/client/build/
+/client/.env
+/client/.cache
+/client/node_modules/
+
+# --- Others ---
+*.pid
+*.seed
+*.pid.lock

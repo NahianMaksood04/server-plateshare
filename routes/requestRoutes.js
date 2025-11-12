@@ -1,16 +1,31 @@
-// backend/routes/requestRoutes.js
 const express = require('express');
 const router = express.Router();
 const requestController = require('../controllers/requestController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Create a request for a food (private)
-router.post('/:foodId', authMiddleware, requestController.createRequest);
+// @route   POST api/requests
+// @desc    Create a new food request
+// @access  Private
+router.post('/', authMiddleware, requestController.createRequest);
 
-// Get all requests for a given food (only visible to owner)
+// @route   GET api/requests/food/:foodId
+// @desc    Get all requests for a specific food (for food owner)
+// @access  Private
 router.get('/food/:foodId', authMiddleware, requestController.getRequestsForFood);
 
-// Update request status (accept/reject)
-router.patch('/:id/status', authMiddleware, requestController.updateRequestStatus);
+// @route   GET api/requests/user
+// @desc    Get all requests made by the logged-in user
+// @access  Private
+router.get('/user', authMiddleware, requestController.getRequestsByUser);
+
+// @route   PATCH api/requests/:id/accept
+// @desc    Accept a food request
+// @access  Private
+router.patch('/:id/accept', authMiddleware, requestController.acceptRequest);
+
+// @route   PATCH api/requests/:id/reject
+// @desc    Reject a food request
+// @access  Private
+router.patch('/:id/reject', authMiddleware, requestController.rejectRequest);
 
 module.exports = router;
