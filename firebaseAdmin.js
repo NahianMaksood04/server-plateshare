@@ -1,19 +1,32 @@
-const admin = require('firebase-admin');
+// firebaseAdmin.js
+const admin = require("firebase-admin");
 
-let serviceAccount;
+const initializeFirebaseAdmin = () => {
+  try {
+    if (admin.apps.length === 0) {
+      let serviceAccount;
 
-try {
-  serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK_CONFIG);
-} catch (err) {
-  console.error('Failed to parse Firebase Admin SDK config:', err);
-  process.exit(1);
-}
+      if (process.env.FIREBASE_ADMIN_SDK_CONFIG) {
+        // Parse the environment variable JSON safely
+        serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK_CONFIG);
+        console.log("Loaded Firebase config from environment variable.");
+      } else {
+        // Fallback for local testing
+        serviceAccount = require("./serviceAccountKey.json");
+        console.log("Loaded Firebase config from local file.");
+      }
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-  console.log('Firebase Admin SDK initialized successfully!');
-}
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
 
-module.exports = admin;
+      console.log("✅ Firebase Admin SDK initialized successfully.");
+    }
+  } catch (error) {
+    console.error("❌ Error initializing Firebase Admin SDK:", error.message);
+    console.error(error);
+    process.exit(1);
+  }
+};
+
+module.exports = { initializeFirebaseAdmin };
