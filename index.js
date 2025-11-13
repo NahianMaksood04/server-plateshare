@@ -1,7 +1,8 @@
-// server.js
+// index.js
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const connectDB = require("./config/db");
 const { initializeFirebaseAdmin } = require("./firebaseAdmin");
 const foodRoutes = require("./routes/foodRoutes");
 const requestRoutes = require("./routes/requestRoutes");
@@ -15,14 +16,19 @@ app.use(express.json());
 // Initialize Firebase
 initializeFirebaseAdmin();
 
-// Routes
-// Use singular and plural versions for clarity
-app.use("/api/food", foodRoutes);
-app.use("/api/foods", foodRoutes); // optional: for /api/foods
-app.use("/api/request", requestRoutes);
-app.use("/api/requests", requestRoutes); // optional: for /api/requests
+// Connect to MongoDB
+connectDB();
 
-// Test route to check environment variables
+// Root route
+app.get("/", (req, res) => {
+  res.send("🚀 PlateShare Backend is Live!");
+});
+
+// Routes
+app.use("/api/foods", foodRoutes);
+app.use("/api/requests", requestRoutes);
+
+// Test environment route
 app.get("/check-env", (req, res) => {
   if (!process.env.FIREBASE_ADMIN_SDK_CONFIG) {
     return res.json({ success: false, message: "❌ Environment variable missing" });
@@ -36,10 +42,17 @@ app.get("/check-env", (req, res) => {
   }
 });
 
-// Root route (optional)
-app.get("/", (req, res) => {
-  res.send("🚀 PlateShare Backend is Live!");
+// Global error handler (optional but useful)
+app.use((err, req, res, next) => {
+  console.error("Global Error:", err);
+  res.status(500).json({ error: err.message || "Server Error" });
 });
 
-// ✅ Required for Vercel
+// Only start server locally
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+// Export app for Vercel
 module.exports = app;
