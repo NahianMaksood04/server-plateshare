@@ -1,24 +1,29 @@
 {
-  "name": "plateshare-server",
+  "name": "server-plateshare",
   "version": "1.0.0",
-  "description": "Backend for the PlateShare application.",
-  "main": "api/index.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "node api/index.js",
-    "dev": "nodemon index.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NahianMaksood04/server-plateshare.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "firebase-admin": "^13.6.0",
-    "mongoose": "^8.0.3",
-    "node-fetch": "^3.3.2"
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/NahianMaksood04/server-plateshare/issues"
   },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
+  "homepage": "https://github.com/NahianMaksood04/server-plateshare#readme",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.6.0",
+    "mongoose": "^8.19.3"
   }
 }

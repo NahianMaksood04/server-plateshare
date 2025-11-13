@@ -1,16 +1,55 @@
 const mongoose = require('mongoose');
 
-const requestSchema = new mongoose.Schema({
-  foodId: { type: mongoose.Schema.Types.ObjectId, ref: 'Food', required: true },
-  requesterEmail: { type: String, required: true },
-  requesterName: { type: String, required: true },
-  requesterPhoto: { type: String },
-  requestLocation: { type: String, required: true },
-  requestReason: { type: String, required: true },
-  contactNo: { type: String, required: true },
-  status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
-}, { timestamps: true });
+const RequestSchema = new mongoose.Schema({
+  foodId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Food',
+    required: true,
+  },
+  foodName: {
+    type: String,
+    required: true,
+  },
+  foodImage: {
+    type: String,
+    required: true,
+  },
+  donatorEmail: {
+    type: String,
+    required: true,
+  },
+  requesterEmail: {
+    type: String,
+    required: true,
+  },
+  requesterName: {
+    type: String,
+    required: true,
+  },
+  requesterImage: {
+    type: String,
+  },
+  pickupLocation: {
+    type: String,
+    required: true,
+  },
+  whyNeedFood: {
+    type: String,
+    required: true,
+  },
+  contactNumber: {
+    type: String,
+    required: true,
+  },
+  requestStatus: {
+    type: String,
+    enum: ['pending', 'accepted', 'rejected'],
+    default: 'pending',
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-const Request = mongoose.model('Request', requestSchema);
-
-module.exports = Request;
+module.exports = mongoose.model('Request', RequestSchema);

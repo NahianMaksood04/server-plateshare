@@ -1,42 +1,4 @@
-# ============================================
-# 🌐 PlateShare MERN Project - .gitignore
-# Covers: Client (React/Vite) + Server (Node/Express)
-# ============================================
-
-# --- Node dependencies ---
-node_modules/
-**/node_modules/
-
-# --- Environment variables ---
-.env
-.env.*
-!.env.example
-
-# --- Build outputs ---
-dist/
-build/
-coverage/
-.cache/
-.vite/
-.next/
-out/
-tmp/
-temp/
-
-# Node modules
-node_modules/
-
-# Environment / secrets
-.env
-serviceAccountKey.json
-
-# Build / temp files
-dist/
-build/
-uploads/
-
-
-# --- Logs ---
+# Logs
 logs
 *.log
 npm-debug.log*
@@ -45,78 +7,37 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# --- OS generated files ---
+# Diagnostic reports (https://nodejs.org/api/report.html)
+.report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Node.js
+node_modules/
+dist/
+dist-dev/
+.next/
+.vercel/
+out/
+build/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .DS_Store
-Thumbs.db
-ehthumbs.db
-Icon?
-Desktop.ini
-
-# --- IDE / Editor files ---
-.vscode/
-.idea/
-*.swp
-*.swo
-*.bak
-*.tmp
-*.orig
-*.save
-*.sass-cache/
-.history/
-*.iml
-
-# --- Lock files (optional if using one package manager globally) ---
-# Uncomment the one you use
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
-
-# --- TypeScript ---
-*.tsbuildinfo
-
-# --- Misc cache ---
-.npm/
-.yarn/
-.pnp.*
-.cache-loader/
-eslintcache
-babel-cache/
-stylelintcache/
-
-# --- Tests ---
-coverage/
-jest-html-reporters-*.html
-test-results/
-cypress/videos/
-cypress/screenshots/
-
-# --- Build artifacts ---
+.firebase/
 *.tgz
-*.zip
-*.tar.gz
+.npm/
+.eslintcache
+.prettiercache
 
-# --- Local database or uploads ---
-uploads/
-data/
-backup/
-db.sqlite
-*.db
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# --- Server specific ---
-/server/logs/
-server/uploads/
-server/temp/
-server/.env
-
-# --- Client specific ---
-/client/dist/
-/client/build/
-/client/.env
-/client/.cache
-/client/node_modules/
-
-# --- Others ---
-*.pid
-*.seed
-*.pid.lock
-.vercel
+# Firebase Admin SDK service account key
+serviceAccountKey.json

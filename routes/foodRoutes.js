@@ -1,23 +1,41 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const foodController = require("../controllers/foodController");
-const authMiddleware = require("../middleware/authMiddleware");
+const foodController = require('../controllers/foodController');
+const verifyToken = require('../middleware/verifyToken');
+
+// @route   POST api/foods
+// @desc    Add a new food item
+// @access  Private
+router.post('/', verifyToken, foodController.addFood);
 
 // @route   GET api/foods
-// @desc    Get all available foods
+// @desc    Get all available food items
 // @access  Public
-router.get("/", foodController.getAvailableFoods);
+router.get('/', foodController.getAvailableFoods);
 
-router.get("/featured", foodController.getFeaturedFoods);
+// @route   GET api/foods/featured
+// @desc    Get 6 featured food items (highest quantity)
+// @access  Public
+router.get('/featured', foodController.getFeaturedFoods);
 
-router.get("/manage", authMiddleware, foodController.getManageableFoods);
+// @route   GET api/foods/manage
+// @desc    Get food items added by the currently logged-in user
+// @access  Private
+router.get('/manage', verifyToken, foodController.getManageMyFoods);
 
-router.get("/:id", authMiddleware, foodController.getFoodById);
+// @route   GET api/foods/:id
+// @desc    Get a single food item by ID
+// @access  Private (requires login to view details)
+router.get('/:id', verifyToken, foodController.getFoodDetails);
 
-router.post("/", authMiddleware, foodController.addFood);
+// @route   PUT api/foods/:id
+// @desc    Update a food item by ID
+// @access  Private
+router.put('/:id', verifyToken, foodController.updateFood);
 
-router.patch("/:id", authMiddleware, foodController.updateFood);
-
-router.delete("/:id", authMiddleware, foodController.deleteFood);
+// @route   DELETE api/foods/:id
+// @desc    Delete a food item by ID
+// @access  Private
+router.delete('/:id', verifyToken, foodController.deleteFood);
 
 module.exports = router;
