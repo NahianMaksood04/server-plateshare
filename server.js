@@ -1,3 +1,4 @@
+// server.js
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -7,6 +8,7 @@ const requestRoutes = require("./routes/requestRoutes");
 
 const app = express();
 
+// Middleware
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
@@ -14,10 +16,13 @@ app.use(express.json());
 initializeFirebaseAdmin();
 
 // Routes
+// Use singular and plural versions for clarity
 app.use("/api/food", foodRoutes);
+app.use("/api/foods", foodRoutes); // optional: for /api/foods
 app.use("/api/request", requestRoutes);
+app.use("/api/requests", requestRoutes); // optional: for /api/requests
 
-// Test route
+// Test route to check environment variables
 app.get("/check-env", (req, res) => {
   if (!process.env.FIREBASE_ADMIN_SDK_CONFIG) {
     return res.json({ success: false, message: "❌ Environment variable missing" });
@@ -31,6 +36,10 @@ app.get("/check-env", (req, res) => {
   }
 });
 
+// Root route (optional)
+app.get("/", (req, res) => {
+  res.send("🚀 PlateShare Backend is Live!");
+});
+
 // ✅ Required for Vercel
 module.exports = app;
-
