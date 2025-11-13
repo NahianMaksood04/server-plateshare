@@ -16,7 +16,7 @@ router.get('/food/:foodId', verifyToken, requestController.getFoodRequests);
 // @route   GET api/requests/my-requests
 // @desc    Get all food requests made by the currently logged-in user
 // @access  Private
-router.get('/my-requests', verifyToken, requestController.getMyFoodRequests);
+router.get('/user', verifyToken, requestController.getMyFoodRequests);
 
 // @route   PUT api/requests/:requestId/status
 // @desc    Update the status of a food request (accept/reject)
