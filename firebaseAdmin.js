@@ -6,10 +6,11 @@ function initializeFirebaseAdmin() {
 
     if (process.env.FIREBASE_ADMIN_SDK_CONFIG) {
       serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK_CONFIG);
-      // Replace escaped newlines with actual newlines in the private_key
-      serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+      serviceAccount.private_key = serviceAccount.private_key.replace(
+        /\\n/g,
+        "\n",
+      );
     } else {
-      // fallback for local development
       serviceAccount = require("./serviceAccountKey.json");
     }
 
