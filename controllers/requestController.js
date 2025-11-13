@@ -8,6 +8,20 @@ exports.requestFood = async (req, res) => {
   try {
     const { foodId, pickupLocation, whyNeedFood, contactNumber } = req.body;
 
+    // Validate required fields from req.body
+    if (!foodId) {
+      return res.status(400).json({ message: 'Food ID is required.' });
+    }
+    if (!pickupLocation) {
+      return res.status(400).json({ message: 'Pickup location is required.' });
+    }
+    if (!whyNeedFood) {
+      return res.status(400).json({ message: 'Reason for needing food is required.' });
+    }
+    if (!contactNumber) {
+      return res.status(400).json({ message: 'Contact number is required.' });
+    }
+
     // Requester info comes from the authenticated user
     const requesterName = req.user.name || req.user.email;
     const requesterEmail = req.user.email;
