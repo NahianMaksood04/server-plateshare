@@ -1,47 +1,36 @@
-// server.js
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const connectDB = require('./config/db');
-const foodRoutes = require('./routes/foodRoutes');
-const requestRoutes = require('./routes/requestRoutes');
-const admin = require('./firebaseAdmin'); // Firebase Admin
-
-dotenv.config();
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+const { initializeFirebaseAdmin } = require("./firebaseAdmin");
+const foodRoutes = require("./routes/foodRoutes");
+const requestRoutes = require("./routes/requestRoutes");
 
 const app = express();
 
-// Connect Database
-connectDB();
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json());
 
-// Middleware
-app.use(
-  cors({
-    origin: [
-      'http://localhost:5173',        // local frontend
-      'https://plate-share.surge.sh', // deployed frontend
-    ],
-    credentials: true,
-  })
-);
-
-app.use(express.json()); // Body parser
+// Initialize Firebase
+initializeFirebaseAdmin();
 
 // Routes
-app.use('/api/foods', foodRoutes);
-app.use('/api/requests', requestRoutes);
+app.use("/api/food", foodRoutes);
+app.use("/api/request", requestRoutes);
 
-// Basic test route
-app.get('/', (req, res) => {
-  res.send('PlateShare Backend API is running...');
+// Test route
+app.get("/check-env", (req, res) => {
+  if (!process.env.FIREBASE_ADMIN_SDK_CONFIG) {
+    return res.json({ success: false, message: "❌ Environment variable missing" });
+  }
+
+  try {
+    const parsed = JSON.parse(process.env.FIREBASE_ADMIN_SDK_CONFIG);
+    return res.json({ success: true, keys: Object.keys(parsed) });
+  } catch (err) {
+    return res.json({ success: false, message: "⚠️ JSON parse error", error: err.message });
+  }
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!', error: err.message });
-});
+// ✅ Required for Vercel
+module.exports = app;
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
