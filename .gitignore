@@ -42,3 +42,4 @@ build/
 # Firebase Admin SDK service account key
 serviceAccountKey.json
 details.md
+serviceAccountKey.json
