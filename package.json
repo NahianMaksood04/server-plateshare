@@ -2,9 +2,9 @@
   "name": "plateshare-server",
   "version": "1.0.0",
   "description": "Backend for the PlateShare application.",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node api/index.js",
     "dev": "nodemon index.js"
   },
   "keywords": [],
@@ -15,7 +15,8 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "firebase-admin": "^11.11.1",
-    "mongoose": "^8.0.3"
+    "mongoose": "^8.0.3",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

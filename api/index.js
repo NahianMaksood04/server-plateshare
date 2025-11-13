@@ -1,4 +1,3 @@
-// /api/index.js
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -11,7 +10,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["https://plateshare-community.web.app"], // Add your frontend URL
+    origin: ["https://plateshare-community.web.app"], // your frontend URL
     credentials: true,
   })
 );
@@ -31,4 +30,9 @@ app.get("/", (req, res) => {
   res.send("PlateShare Server is running!");
 });
 
-module.exports = app;
+// ✅ Listen on port 5000
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
