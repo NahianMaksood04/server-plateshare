@@ -43,3 +43,4 @@ build/
 serviceAccountKey.json
 details.md
 serviceAccountKey.json
+.vercel
